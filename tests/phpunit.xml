@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <phpunit bootstrap="bootstrap.php" colors="true" verbose="true" backupGlobals="false">
     <testsuites>
-        <testsuite name="ArangoDB-PHP">
-            <directory>.</directory>
+        <testsuite name="ArangoDB-PHP-UnitTests">
+            <directory>./unit</directory>
+        </testsuite>
+        <testsuite name="ArangoDB-PHP-IntegrationTests">
+            <directory>./integration</directory>
         </testsuite>
     </testsuites>
 </phpunit>
