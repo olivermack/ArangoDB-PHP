@@ -100,4 +100,55 @@ class DocumentTest extends
         $clone = clone $this->doc;
         $this->assertFalse($clone->getChanged());
     }
+
+    /**
+     * @expectedException triagens\ArangoDb\ClientException
+     */
+    public function testSetThrowsExceptionWhenKeyArgumentIsNotAString()
+    {
+        $this->doc->set(123456, 'Fooo');
+    }
+
+    public function testSetEntryIdSetsInternalId()
+    {
+        $this->doc->set(Document::ENTRY_ID, 'foo/bar');
+        $this->assertEquals('foo/bar', $this->doc->getInternalId());
+    }
+
+    public function testSetEntryKeySetsInternalKey()
+    {
+        $this->doc->set(Document::ENTRY_KEY, 'foo');
+        $this->assertEquals('foo', $this->doc->getInternalKey());
+    }
+
+    public function testSetEntryRevSetsRevision()
+    {
+        $this->doc->set(Document::ENTRY_REV, '123456');
+        $this->assertEquals('123456', $this->doc->getRevision());
+    }
+
+    public function testSetEntryIsNewSetsIsNew()
+    {
+        $this->doc->set(Document::ENTRY_ISNEW, true);
+        $this->assertTrue($this->doc->getIsNew());
+    }
+
+    public function testSetAttributeSetsChangedFlag()
+    {
+        $this->doc->set('foo', 'bar');
+        $this->assertTrue($this->doc->getChanged());
+    }
+
+    public function testCanSetAndGetAttribute()
+    {
+        $this->doc->set('foo', 'bar');
+        $this->assertEquals('bar', $this->doc->get('foo'));
+    }
+
+    public function testPropertySetterDelegatesToSet()
+    {
+        $this->doc->foo = 'bar';
+        $this->assertEquals('bar', $this->doc->get('foo'));
+        $this->assertTrue($this->doc->getChanged());
+    }
 }
