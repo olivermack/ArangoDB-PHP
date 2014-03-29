@@ -57,6 +57,125 @@ class DocumentTest extends
         $this->assertTrue($this->doc->getIsNew());
     }
 
+    // ==================================================================
+    //
+    // Following: tests for simple accessors
+    //
+    // ------------------------------------------------------------------
+
+    public function testCanSetAndGetHiddenAttributes()
+    {
+        $attrs = array('foo' => 'bar');
+        $this->doc->setHiddenAttributes($attrs);
+        $this->assertEquals($attrs, $this->doc->getHiddenAttributes());
+    }
+
+    public function testCanSetAndGetChangedFlag()
+    {
+        $this->doc->setChanged(true);
+        $this->assertTrue($this->doc->getChanged());
+    }
+
+    public function testSetChangedFlagCastsToBool()
+    {
+        $this->doc->setChanged('1');
+        $this->assertTrue($this->doc->getChanged());
+    }
+
+    public function testCanSetAndGetIsNewFlag()
+    {
+        $this->doc->setIsNew(true);
+        $this->assertTrue($this->doc->getIsNew());
+    }
+
+    public function testSetIsNewFlagCastsToBool()
+    {
+        $this->doc->setIsNew('1');
+        $this->assertTrue($this->doc->getIsNew());
+    }
+
+    public function testCanSetAndGetRevision()
+    {
+        $this->doc->setRevision('1234');
+        $this->assertEquals('1234', $this->doc->getRevision());
+    }
+
+    public function testCanSetAndGetInternalId()
+    {
+        $this->doc->setInternalId('foo/bar');
+        $this->assertEquals('foo/bar', $this->doc->getInternalId());
+    }
+
+    /**
+     * @expectedException triagens\ArangoDb\ClientException
+     */
+    public function testSetInternalIdThrowsExceptionWhenIdAlreadySet()
+    {
+        $this->doc->setInternalId('foo/bar');
+        $this->doc->setInternalId('bar/foo');
+    }
+
+    /**
+     * @expectedException triagens\ArangoDb\ClientException
+     */
+    public function testSetInternalIdThrowsExceptionOnWrongFormat()
+    {
+        $this->doc->setInternalId('foo');
+    }
+
+    public function testCanSetAndInternalKey()
+    {
+        $this->doc->setInternalKey('foo');
+        $this->assertEquals('foo', $this->doc->getInternalKey());
+    }
+
+    /**
+     * @expectedException triagens\ArangoDb\ClientException
+     */
+    public function testSetInternalIdThrowsExceptionWhenKeyAlreadySet()
+    {
+        $this->doc->setInternalKey('foo');
+        $this->doc->setInternalKey('bar');
+    }
+
+    /**
+     * @expectedException triagens\ArangoDb\ClientException
+     */
+    public function testSetInternalKeyThrowsExceptionOnWrongFormat()
+    {
+        $this->doc->setInternalKey('foo/bar');
+    }
+
+    public function testGetHandleDelegatesToInternalId()
+    {
+        $this->doc->setInternalId('foo/bar');
+        $this->assertEquals('foo/bar', $this->doc->getHandle());
+    }
+
+    public function testGetIdReturnsSecondPartOfInternalId()
+    {
+        $this->doc->setInternalId('foo/bar');
+        $this->assertEquals('bar', $this->doc->getId());
+    }
+
+    public function testGetKeyDelegatesToInternalKey()
+    {
+        $this->doc->setInternalKey('foo');
+        $this->assertEquals('foo', $this->doc->getKey());
+    }
+
+    public function testGetCollectionIdReturnsFirstPartOfInternalId()
+    {
+        $this->doc->setInternalId('foo/bar');
+        $this->assertEquals('foo', $this->doc->getCollectionId());
+    }
+
+    // ==================================================================
+    //
+    // Following: tests for method ::__clone()
+    //
+    // ------------------------------------------------------------------
+
     public function testCloneResetsInternalId()
     {
         // internal id is required to be two strings separated by slash
@@ -100,6 +219,12 @@ class DocumentTest extends
         $clone = clone $this->doc;
         $this->assertFalse($clone->getChanged());
     }
+
+    // ==================================================================
+    //
+    // Following: tests for method ::set()
+    //
+    // ------------------------------------------------------------------
 
     /**
      * @expectedException triagens\ArangoDb\ClientException
@@ -150,5 +275,21 @@ class DocumentTest extends
         $this->doc->foo = 'bar';
         $this->assertEquals('bar', $this->doc->get('foo'));
         $this->assertTrue($this->doc->getChanged());
+    }
+
+    // ==================================================================
+    //
+    // Following: tests for method ::get()
+    //
+    // ------------------------------------------------------------------
+
+    public function testGetReturnsNullAsDefault()
+    {
+        $this->assertEquals(null, $this->doc->get('foo'));
+    }
+
+    public function testPropertyGetterDelegatesToGet()
+    {
+        $this->assertEquals(null, $this->doc->foo);
     }
 }
